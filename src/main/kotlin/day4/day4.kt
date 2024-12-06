@@ -1,7 +1,8 @@
 package day4
 
 import utils.loadInput
-
+import utils.maxCol
+import utils.maxRow
 
 
 data class Coord(val row: Int, val col: Int)
@@ -88,10 +89,4 @@ fun part2(): Int {
     return count
 }
 
-fun List<List<Any>>.maxCol(): Int {
-    return this[0].size - 1
-}
 
-fun List<List<Any>>.maxRow(): Int {
-    return this.size - 1
-}
