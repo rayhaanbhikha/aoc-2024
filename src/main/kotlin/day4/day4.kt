@@ -1,13 +1,11 @@
 package day4
 
+import utils.Coord
 import utils.loadInput
 import utils.maxCol
 import utils.maxRow
 
-
-data class Coord(val row: Int, val col: Int)
-
-class Cell(val coord: Coord,val maxRow: Int,val maxCol: Int, minSearch: Int = 0, maxSearch: Int = 0) {
+class Cell(val coord: Coord, val maxRow: Int, val maxCol: Int, minSearch: Int = 0, maxSearch: Int = 0) {
     private val range = minSearch..maxSearch
     val n = range.map{ coord.copy(row = coord.row - it) }.filter { validate(it) }
     val ne = range.map{ coord.copy(row = coord.row - it,col = coord.col + it) }.filter { validate(it) }

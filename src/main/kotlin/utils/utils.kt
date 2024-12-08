@@ -1,6 +1,5 @@
 package utils
 
-import day4.Coord
 import java.io.File
 
 
@@ -90,4 +89,29 @@ fun <T> List<List<T>>.maxCol(): Int {
 
 fun <T> List<List<T>>.maxRow(): Int {
     return this.size - 1
+}
+
+
+data class Coord(val row: Int, val col: Int) {
+    fun add(otherCoord: Coord): Coord {
+        return Coord(row = row + otherCoord.row, col = col + otherCoord.col)
+    }
+
+    fun goRight(): Coord {
+        return Coord(
+            col =  1 * row,
+            row = -1 * col
+        )
+    }
+}
+
+fun rotateRight(x: Int, y: Int): Pair<Int, Int> {
+    // Rotation matrix for 90 degrees clockwise:
+    // [  0,  1 ]
+    // [ -1,  0 ]
+
+    val newX = 0 * x + 1 * y  // This simplifies to y
+    val newY = -1 * x + 0 * y // This simplifies to -x
+
+    return Pair(newX, newY)
 }
