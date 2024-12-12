@@ -66,7 +66,7 @@ class Guard(val grid: Grid<String>, startingCoord: Coord, startingValue: String)
         val vectorToMove =
             directions[currentGuardCell.value] ?: throw Exception("Invalid value ${currentGuardCell.value}")
 
-        val newCoord = currentGuardCell.coord.add(vectorToMove)
+        val newCoord = currentGuardCell.coord + vectorToMove
 
         if (newCoord.row !in 0..grid.maxRow || newCoord.col !in 0..grid.maxColumn) {
             // outside of grid.

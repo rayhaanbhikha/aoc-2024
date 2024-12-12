@@ -2,12 +2,16 @@ package utils
 
 
 class GridIterator<T>(private val grid: Grid<T>) : Iterator<Cell<T>> {
-    private var currentRowIndex = 0
-    private var currentColIndex = 0
+    private var currentRowIndex = -1
+    private var currentColIndex = -1
 
 
     override fun hasNext(): Boolean {
         when {
+            currentRowIndex == -1 && currentColIndex == -1 -> {
+                currentColIndex = 0
+                currentRowIndex = 0
+            }
             currentColIndex == grid.maxColumn -> {
                 currentColIndex = 0
                 currentRowIndex++
@@ -47,7 +51,10 @@ data class Grid<T>(val cells: MutableList<MutableList<T>>) : Iterable<Cell<T>> {
     fun print() {
         println()
         cells.forEach{
-            println(it)
+            it.forEach{ value ->
+                print(value)
+            }
+            println()
         }
     }
 

@@ -15,4 +15,7 @@ fun loadInput(day: Int, example: Boolean = false): String {
     return File(prefix).readText().trim()
 }
 
+fun loadInput(fileName: String): String {
+    return File("./inputs/$fileName").readText().trim()
+}
 
