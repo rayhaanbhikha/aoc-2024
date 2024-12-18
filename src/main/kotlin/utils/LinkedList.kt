@@ -1,23 +1,31 @@
 package utils
 
-class LinkedListIterator<T>(rootNode: LinkedListNode<T>) : Iterator<T> {
+class LinkedListIterator<T>(rootNode: LinkedListNode<T>) : Iterator<LinkedListNode<T>> {
     private var currentNode: LinkedListNode<T>? = rootNode
 
     override fun hasNext(): Boolean {
         return currentNode != null
     }
 
-    override fun next(): T {
-        val valueToReturn = currentNode!!.value
+    override fun next(): LinkedListNode<T> {
+        val valueToReturn = currentNode!!
         currentNode = currentNode?.next
         return valueToReturn
     }
 
 }
 
-class LinkedListNode<T>(var value: T) : Iterable<T> {
+class LinkedListNode<T>(var value: T) : Iterable<LinkedListNode<T>> {
     var prev: LinkedListNode<T>? = null
     var next: LinkedListNode<T>? = null
+
+    fun get(index: Int): LinkedListNode<T>? {
+        return when {
+            index < 0 -> null
+            index == 0 -> this
+            else -> return next?.get(index-1)
+        }
+    }
 
     private fun add(otherNode: LinkedListNode<T>) {
         if (this.next != null) {
@@ -35,6 +43,7 @@ class LinkedListNode<T>(var value: T) : Iterable<T> {
     fun insert(value: T) {
         insert(LinkedListNode(value))
     }
+
 
     fun insertAfterIndex(index: Int, value: T) {
         when {
@@ -82,7 +91,14 @@ class LinkedListNode<T>(var value: T) : Iterable<T> {
         }
     }
 
-    override fun iterator(): Iterator<T> {
+    fun print() {
+        this.walk {
+            print(it.value)
+        }
+        println()
+    }
+
+    override fun iterator(): Iterator<LinkedListNode<T>> {
         return LinkedListIterator(this)
     }
 }
