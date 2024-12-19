@@ -18,6 +18,7 @@ class LinkedListIterator<T>(rootNode: LinkedListNode<T>) : Iterator<LinkedListNo
 class LinkedListNode<T>(var value: T) : Iterable<LinkedListNode<T>> {
     var prev: LinkedListNode<T>? = null
     var next: LinkedListNode<T>? = null
+    var index: Int = 0
 
     fun get(index: Int): LinkedListNode<T>? {
         return when {
@@ -34,6 +35,7 @@ class LinkedListNode<T>(var value: T) : Iterable<LinkedListNode<T>> {
 
         next = otherNode
         otherNode.prev = this
+        otherNode.index = this.index + 1
     }
 
     fun add(value: T) {
@@ -60,12 +62,15 @@ class LinkedListNode<T>(var value: T) : Iterable<LinkedListNode<T>> {
         }
 
         val nextNode = next
+        nextNode?.prev = newNode
 
         next = newNode
         newNode.next = nextNode
+        newNode.prev = this
+
     }
 
-    fun delete(index: Int) {
+    fun delete(index: Int = 0) {
         if (index < 0) return
 
         if (index == 0) {

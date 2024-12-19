@@ -120,109 +120,89 @@ fun part2(): Int {
         } else {
             FileBlock(-1, numOfBlocks, index)
         }
-    }.toMutableList()
+    }
+
 
     val fileBlockList = fileBlocks.toLinkedList()
-//    val emptyFileBlocks = fileBlockList?.filter { it.value.isEmpty() }?.toMutableList()
+    // TODO: should be able to just get last node.
     var fileBlockRightNode = fileBlockList?.get(fileBlocks.lastIndex)
-    var fileBlockRightNodeIndex = fileBlocks.lastIndex
-    var currentFileBlockRightID = -1
+
+    while (fileBlockRightNode != null) {
+        if (fileBlockRightNode.prev == null) {
+            // no more filled blocked.
+            break
+        }
+
+        if (fileBlockRightNode.value.isEmpty()) {
+            fileBlockRightNode = fileBlockRightNode.prev
+            continue
+        }
+
+        val emptyBlockNode: LinkedListNode<FileBlock>? = fileBlockList?.firstOrNull {
+            it.value.isEmpty() && it.value.size >= fileBlockRightNode!!.value.size && it.index < fileBlockRightNode!!.index
+        }
+
+        // can't find an empty block node on the left.
+        if (emptyBlockNode == null) {
+            fileBlockRightNode = fileBlockRightNode.prev
+            continue
+        }
+
+        val emptyBlock = emptyBlockNode.value
+
+        when {
+            // we have enough empty space.
+            emptyBlock.size == fileBlockRightNode.value.size -> {
+                val fileBlock = fileBlockRightNode.value.copy()
+                val newEmptyFileBlockNode = LinkedListNode(FileBlock(id = -1, size = fileBlockRightNode.value.size))
+                newEmptyFileBlockNode.index = fileBlockRightNode.index
+                fileBlockRightNode.insert(newEmptyFileBlockNode)
+                fileBlockRightNode.delete()
+
+                val emptyBlockNodeIndex = emptyBlockNode.index
+                val newFileBlockNode = LinkedListNode(fileBlock)
+                newFileBlockNode.index = emptyBlockNodeIndex
+
+                emptyBlockNode.insert(newFileBlockNode)
+                emptyBlockNode.delete()
+                fileBlockRightNode = fileBlockRightNode.prev
+            }
+
+            emptyBlock.size > fileBlockRightNode.value.size -> {
+                val fileBlock = fileBlockRightNode.value.copy()
+                val newEmptyFileBlockNode = LinkedListNode(FileBlock(id = -1, size = fileBlockRightNode.value.size))
+                newEmptyFileBlockNode.index = fileBlockRightNode.index
+                fileBlockRightNode.insert(newEmptyFileBlockNode)
+                fileBlockRightNode.delete()
+
+                val remainingSize = emptyBlock.size - fileBlock.size
+
+                val emptyBlockNodeIndex = emptyBlockNode.index
+                val newFileBlockNode = LinkedListNode(fileBlock)
+                newFileBlockNode.index = emptyBlockNodeIndex
+
+                emptyBlockNode.insert(newFileBlockNode)
+
+                val remainingEmptyBlock = LinkedListNode(FileBlock(id = -1, size = remainingSize))
+                remainingEmptyBlock.index = emptyBlockNodeIndex
+                newFileBlockNode.insert(remainingEmptyBlock)
+                emptyBlockNode.delete()
+
+                fileBlockRightNode = fileBlockRightNode.prev
+            }
+        }
+    }
 
     fileBlockList!!
         .map { it.value }
-        .map { block -> List(block.size) { if (block.isEmpty()) "." else block.id } }
+        .map { block -> List(block.size) { if (block.isEmpty()) -1 else block.id } }
         .flatten()
-        .joinToString("")
+        .foldIndexed(0L) { index, acc, i ->
+            if (i == -1) acc else acc + (index * i)
+        }
         .also {
             println(it)
         }
-
-
-//    while (fileBlockRightNode != null) {
-//        if (fileBlockRightNode.value.isEmpty() || fileBlockRightNode.prev == null) {
-//            fileBlockRightNode = fileBlockRightNode.prev
-//            fileBlockRightNodeIndex--
-//            continue
-//        }
-//
-//        var emptyBlockNode: LinkedListNode<FileBlock>? = null
-//
-//
-//        run breaking@{
-//            fileBlockList?.forEachIndexed { index, fileBlock ->
-//                if (
-//                // must be an empty block
-//                    fileBlock.value.isEmpty() &&
-//                    // must not be an empty block created by moving a right.
-//                    !fileBlock.value.hasMoved &&
-//                    // empty block must have enough capacity to move the current fileBlock
-//                    fileBlock.value.size >= fileBlockRightNode!!.value.size &&
-//                    // index of the empty block must be less than the current file block.
-//                    index <= fileBlockRightNodeIndex
-//                ) {
-//                    emptyBlockNode = fileBlock
-//                    return@breaking
-//                }
-//            }
-//        }
-//
-//        if (emptyBlockNode == null) {
-//            fileBlockRightNode = fileBlockRightNode.prev
-//            fileBlockRightNodeIndex--
-//            continue
-//        }
-//
-//        val emptyBlock = emptyBlockNode!!.value
-//
-////        println("$emptyBlock - ${fileBlockRightNode.value}")
-//
-//        when {
-//            // we have enough empty space.
-//            emptyBlock.size == fileBlockRightNode.value.size -> {
-//                emptyBlock.id = fileBlockRightNode.value.id
-//                emptyBlock.size = fileBlockRightNode.value.size
-//
-//                fileBlockRightNode.value.id = -1
-//                fileBlockRightNode.value.hasMoved = true
-//
-//                fileBlockRightNode = fileBlockRightNode.prev
-//                fileBlockRightNodeIndex--
-//            }
-//
-//            emptyBlock.size > fileBlockRightNode.value.size -> {
-//                val remainingSize = emptyBlock.size - fileBlockRightNode.value.size
-//                emptyBlock.id = fileBlockRightNode.value.id
-//                emptyBlock.size = fileBlockRightNode.value.size
-//
-//                fileBlockRightNode.value.id = -1
-//                fileBlockRightNode.value.hasMoved = true
-//                fileBlockRightNode = fileBlockRightNode.prev
-//                fileBlockRightNodeIndex--
-//
-//                emptyBlockNode?.insert(FileBlock(id = -1, size = remainingSize))
-//            }
-//        }
-//
-////        fileBlockList!!
-////            .map { it.value }
-////            .map { block -> List(block.size) { if (block.isEmpty()) "." else block.id } }
-////            .flatten()
-////            .joinToString("")
-////            .also {
-////                println(it)
-////            }
-//    }
-//
-//    fileBlockList!!
-//        .map { it.value }
-//        .map { block -> List(block.size) { if (block.isEmpty()) -1 else block.id } }
-//        .flatten()
-//        .foldIndexed(0L) { index, acc, i ->
-//            if (i == -1) acc else acc + (index * i)
-//        }
-//        .also {
-//            println(it)
-//        }
 
     return 0
 }
