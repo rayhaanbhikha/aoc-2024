@@ -1,0 +1,64 @@
+package day10
+
+import utils.*
+
+fun score(startingCoord: Coord, grid: Grid<Int>): Int {
+    val startingCellValue = grid.cells.getOrNull(startingCoord.row)?.getOrNull(startingCoord.col) ?: return 0
+    if (startingCellValue != 0) return 0
+
+    val trailHeadsSeen = mutableSetOf<Coord>()
+    val cellsToSearch = mutableListOf(startingCoord)
+    var counter = 0
+
+    while (cellsToSearch.isNotEmpty()) {
+        val currentCoord = cellsToSearch.removeFirst()
+
+        val cellValue = grid.cells.getOrNull(currentCoord.row)?.getOrNull(currentCoord.col) ?: continue
+
+        if (cellValue == 9 && !trailHeadsSeen.contains(currentCoord)) {
+            counter++
+            trailHeadsSeen.add(currentCoord)
+            continue
+        }
+
+        val expectedNextSearchValue = cellValue + 1
+
+        val neighbours =
+            currentCoord.cardinalNeighbours()
+                .filter { it.inValidRange(0..grid.maxRow, 0..grid.maxColumn) }
+                .mapNotNull { nextCoord ->
+                    val nextCellValue = grid.cells.getOrNull(nextCoord.row)?.getOrNull(nextCoord.col) ?: return@mapNotNull null
+
+                    if (expectedNextSearchValue == nextCellValue) {
+                        nextCoord
+                    } else {
+                        null
+                    }
+                }
+
+        if (neighbours.isNotEmpty()) cellsToSearch.addAll(0, neighbours)
+    }
+
+
+    return counter
+}
+
+
+fun part1(): Int {
+//    val input = loadInput("./day10_input_example_3.txt")
+//    val input = loadInput("./day10_input_example_2.txt")
+    val input = loadInput(10)
+
+    val grid = input.toGrid { num -> if (num == ".") -2 else num.toInt() }
+
+    grid.map {
+        score(it.coord, grid)
+    }.sum().also { println(it) }
+
+
+    return 0
+}
+
+fun part2(): Int {
+    return 0
+}

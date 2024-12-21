@@ -74,6 +74,20 @@ fun String.toGrid(): Grid<String> {
     return Grid(cells)
 }
 
+fun <T> String.toGrid(mappingFunc: (rawValue: String) -> T): Grid<T> {
+    val cells = this
+        .lines()
+        .map {
+            val row = it.trim().split("").toMutableList()
+            row.removeFirst()
+            row.removeLast()
+            row.map { rawValue -> mappingFunc(rawValue) }.toMutableList()
+        }
+        .toMutableList()
+
+    return Grid(cells)
+}
+
 fun <T> List<List<T>>.maxCol(): Int {
     return this[0].size - 1
 }
