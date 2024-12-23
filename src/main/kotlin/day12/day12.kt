@@ -2,7 +2,10 @@ package day12
 
 import utils.*
 
-class GardenPlot(val id: String, private val coord: Coord) {
+
+class GardenPlot(val id: String, val coord: Coord) {
+    var boundaries: Set<String> = setOf()
+
     fun computePerimeter(grid: Grid<GardenPlot>): Int {
         return coord.cardinalNeighbours()
             .asSequence()
@@ -32,6 +35,99 @@ class GardenPlot(val id: String, private val coord: Coord) {
 
         return
     }
+
+    fun setBoundaries(grid: Grid<GardenPlot>) {
+        this.boundaries = coord
+            .cardinalNeighbours()
+            .mapNotNull { neighbourCellCoord ->
+                val boundary = when {
+                    neighbourCellCoord.col == coord.col -> "row:$id:${coord.row}:${neighbourCellCoord.row}:"
+                    neighbourCellCoord.row == coord.row -> "col:$id:${coord.col}:${neighbourCellCoord.col}"
+                    else -> throw Exception("not possible")
+                }
+                val inValidRange = neighbourCellCoord.inValidRange(0..grid.maxRow, 0..grid.maxColumn)
+                if (!inValidRange) return@mapNotNull boundary
+
+                val neighbourCell = grid.cells[neighbourCellCoord.row][neighbourCellCoord.col]
+                if (neighbourCell.id != id) return@mapNotNull boundary
+
+                null
+            }.toSet()
+    }
+
+    fun computePerimeter2(grid: Grid<GardenPlot>, boundariesVisited: MutableSet<String>): Long {
+        return boundaries.sumOf {
+            if (boundariesVisited.contains(it)) {
+                // boundary has been visited. But is this an isolated node?
+                when {
+                    it.contains("row") -> {
+                        // look left and right.
+//                        val left = grid.get(coord + Directions.East.coordVector)
+                        val left = grid.get(coord + Directions.West.coordVector)
+
+//                        if (right == null || right.id != id) {
+//                            return@sumOf 1
+//                        }
+
+                        if (left == null || left.id != id) {
+                            return@sumOf 1
+                        }
+
+//                        if (!right.boundaries.contains(it)) {
+//                            return@sumOf 1
+//                        }
+
+                        if (!left.boundaries.contains(it)) {
+                            return@sumOf 1
+                        }
+
+//                        if (
+//                            (left == null || left.id != id || !left.boundaries.contains(it)) &&
+//                            (right == null || right.id != id || !right.boundaries.contains(it))
+//                        ) {
+//                            return@sumOf 1L
+//                        }
+                    }
+
+                    it.contains("col") -> {
+                        val up = grid.get(coord + Directions.North.coordVector)
+                        val down = grid.get(coord + Directions.South.coordVector)
+
+                        if (up == null || up.id != id) {
+                            return@sumOf 1
+                        }
+
+//                        if (down == null || down.id != id) {
+//                            return@sumOf 1
+//                        }
+
+                        if (!up.boundaries.contains(it)) {
+                            return@sumOf 1
+                        }
+//
+//                        if (!down.boundaries.contains(it)) {
+//                            return@sumOf 1
+//                        }
+
+//                        if (
+//                            !up.boundaries.contains(it)) &&
+//                            (down == null || down.id != id || !down.boundaries.contains(it))
+//                        ) {
+//                            return@sumOf 1L
+//                        }
+                    }
+
+                    else -> throw Exception("not possible")
+                }
+
+                return@sumOf 0L
+            } else {
+                boundariesVisited.add(it)
+                return@sumOf 1L
+            }
+        }
+    }
+
 }
 
 fun part1(): Int {
@@ -90,10 +186,83 @@ fun part1(): Int {
     }
         .values.sum().also { println(it) }
 
-
     return 0
 }
 
 fun part2(): Int {
+    val input = loadInput(12).toGrid { rawValue, coord -> GardenPlot(rawValue, coord) }
+//    val input = """
+//    EEEEE
+//    EXXXX
+//    EEEEE
+//    EXXXX
+//    EEEEE
+//    """.trimIndent().toGrid { rawValue, coord -> GardenPlot(rawValue, coord) }
+//    val input = """
+//        AAAA
+//        BBCD
+//        BBCC
+//        EEEC
+//    """.trimIndent().toGrid { rawValue, coord -> GardenPlot(rawValue, coord) }
+//    val input = """
+//OOOOO
+//OXOXO
+//OOOOO
+//OXOXO
+//OOOOO
+//    """.trimIndent().toGrid { rawValue, coord -> GardenPlot(rawValue, coord) }
+//    val input = """
+//    AAAAAA
+//    AAABBA
+//    AAABBA
+//    ABBAAA
+//    ABBAAA
+//    AAAAAA
+//    """.trimIndent().toGrid{ rawValue, coord -> GardenPlot(rawValue, coord) }
+//    val input = """
+//RRRRIICCFF
+//RRRRIICCCF
+//VVRRRCCFFF
+//VVRCCCJFFF
+//VVVVCJJCFE
+//VVIVCCJJEE
+//VVIIICJJEE
+//MIIIIIJJEE
+//MIIISIJEEE
+//MMMISSJEEE
+//    """.trimIndent().toGrid { rawValue, coord -> GardenPlot(rawValue, coord) }
+
+    // need to group the plant pots by neighbours.
+
+    input.forEach { it.value.setBoundaries(input) }
+
+    val coordsVisited = mutableSetOf<Coord>()
+    val cellsToSearch = input.toMutableList()
+    val gardenPlotNeighbours = mutableMapOf<String, List<GardenPlot>>()
+
+    while (cellsToSearch.isNotEmpty()) {
+        val currentCell = cellsToSearch.removeFirst()
+        if (coordsVisited.contains(currentCell.coord)) continue
+
+        val gardenPlotsVisited = mutableSetOf<Coord>()
+        currentCell.value.walk(grid = input, gardenPlotsVisited)
+
+        coordsVisited.add(currentCell.coord)
+        coordsVisited.addAll(gardenPlotsVisited)
+
+        val key = "${currentCell.value.id}:${gardenPlotsVisited.size}:${currentCell.coord}"
+        gardenPlotNeighbours[key] = gardenPlotsVisited.map { input.cells[it.row][it.col] }
+    }
+
+
+    val boundaries = mutableSetOf<String>()
+    gardenPlotNeighbours.mapValues {
+        val sortedGardenPlots = it.value.sortedWith(compareBy({ it.coord.row }, { it.coord.col }))
+        val totalPerimeter = sortedGardenPlots.fold(0L) { acc, cell -> cell.computePerimeter2(input, boundaries) + acc }
+        val res = it.value.size * totalPerimeter
+        res
+    }
+        .values.sum().also { println(it) }
+
     return 0
 }

@@ -3,6 +3,11 @@ package utils
 import kotlin.math.abs
 
 data class Coord(val row: Int, val col: Int) {
+
+    override fun toString(): String {
+        return "$row,$col"
+    }
+
     operator fun plus(otherCoord: Coord): Coord {
         return Coord(row = row + otherCoord.row, col = col + otherCoord.col)
     }

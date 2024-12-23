@@ -48,6 +48,10 @@ data class Grid<T>(val cells: MutableList<MutableList<T>>) : Iterable<Cell<T>> {
         cells[coord.row][coord.col] = newValue
     }
 
+    fun get(coord: Coord): T? {
+        return cells.getOrNull(coord.row)?.getOrNull(coord.col)
+    }
+
     fun print() {
         println()
         cells.forEach{
