@@ -1,5 +1,7 @@
 package utils
 
+import kotlin.math.abs
+
 data class Coord(val row: Int, val col: Int) {
     operator fun plus(otherCoord: Coord): Coord {
         return Coord(row = row + otherCoord.row, col = col + otherCoord.col)
@@ -14,7 +16,7 @@ data class Coord(val row: Int, val col: Int) {
     }
 
     operator fun times(n: Int): Coord {
-        return Coord(row = row*n, col = col*n)
+        return Coord(row = row * n, col = col * n)
     }
 
     fun greaterThan(otherCoord: Coord): Boolean {
@@ -23,7 +25,7 @@ data class Coord(val row: Int, val col: Int) {
 
     fun goRight(): Coord {
         return Coord(
-            col =  1 * row,
+            col = 1 * row,
             row = -1 * col
         )
     }
@@ -35,13 +37,16 @@ data class Coord(val row: Int, val col: Int) {
     fun intercardinalNeighbours(): List<Coord> {
         return Directions.entries.map { it.coordVector + this }
     }
+
+    fun areNeighbours(otherCoord: Coord) =
+        (abs(row - otherCoord.row) == 1 && abs(col - otherCoord.col) == 0) || (abs(row - otherCoord.row) == 0 && abs(col - otherCoord.col) == 1)
 }
 
 fun Coord.inValidRange(rowRange: IntRange, colRange: IntRange): Boolean {
     return rowRange.contains(this.row) && colRange.contains(this.col)
 }
 
-enum class Directions(val coordVector: Coord,val isDiagonal: Boolean = false) {
+enum class Directions(val coordVector: Coord, val isDiagonal: Boolean = false) {
     North(Coord(-1, 0)),
     NorthEast(Coord(-1, 1), true),
     East(Coord(0, 1)),

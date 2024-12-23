@@ -88,6 +88,20 @@ fun <T> String.toGrid(mappingFunc: (rawValue: String) -> T): Grid<T> {
     return Grid(cells)
 }
 
+fun <T> String.toGrid(mappingFunc: (rawValue: String, coord: Coord) -> T): Grid<T> {
+    val cells = this
+        .lines()
+        .mapIndexed { rowIndex, rawRow ->
+            val row = rawRow.trim().split("").toMutableList()
+            row.removeFirst()
+            row.removeLast()
+            row.mapIndexed { colIndex, rawValue -> mappingFunc(rawValue, Coord(row = rowIndex, col = colIndex)) }.toMutableList()
+        }
+        .toMutableList()
+
+    return Grid(cells)
+}
+
 fun <T> List<List<T>>.maxCol(): Int {
     return this[0].size - 1
 }
@@ -96,4 +110,10 @@ fun <T> List<List<T>>.maxRow(): Int {
     return this.size - 1
 }
 
-data class Cell<T>(var coord: Coord, var value: T)
+data class Cell<T>(var coord: Coord, var value: T) {
+    fun cardinalNeighbours(grid: Grid<T>): List<Cell<T>> {
+        return coord.cardinalNeighbours()
+                .filter { it.inValidRange(0..grid.maxRow, 0..grid.maxColumn) }
+                .map { Cell(coord = Coord(it.row, it.col), value = grid.cells[it.row][it.col]) }
+    }
+}
