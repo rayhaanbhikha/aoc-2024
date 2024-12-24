@@ -61,60 +61,17 @@ class GardenPlot(val id: String, val coord: Coord) {
                 // boundary has been visited. But is this an isolated node?
                 when {
                     it.contains("row") -> {
-                        // look left and right.
-//                        val left = grid.get(coord + Directions.East.coordVector)
                         val left = grid.get(coord + Directions.West.coordVector)
-
-//                        if (right == null || right.id != id) {
-//                            return@sumOf 1
-//                        }
-
-                        if (left == null || left.id != id) {
+                        if (left == null || left.id != id || !left.boundaries.contains(it)) {
                             return@sumOf 1
                         }
-
-//                        if (!right.boundaries.contains(it)) {
-//                            return@sumOf 1
-//                        }
-
-                        if (!left.boundaries.contains(it)) {
-                            return@sumOf 1
-                        }
-
-//                        if (
-//                            (left == null || left.id != id || !left.boundaries.contains(it)) &&
-//                            (right == null || right.id != id || !right.boundaries.contains(it))
-//                        ) {
-//                            return@sumOf 1L
-//                        }
                     }
 
                     it.contains("col") -> {
                         val up = grid.get(coord + Directions.North.coordVector)
-                        val down = grid.get(coord + Directions.South.coordVector)
-
-                        if (up == null || up.id != id) {
+                        if (up == null || up.id != id || !up.boundaries.contains(it)) {
                             return@sumOf 1
                         }
-
-//                        if (down == null || down.id != id) {
-//                            return@sumOf 1
-//                        }
-
-                        if (!up.boundaries.contains(it)) {
-                            return@sumOf 1
-                        }
-//
-//                        if (!down.boundaries.contains(it)) {
-//                            return@sumOf 1
-//                        }
-
-//                        if (
-//                            !up.boundaries.contains(it)) &&
-//                            (down == null || down.id != id || !down.boundaries.contains(it))
-//                        ) {
-//                            return@sumOf 1L
-//                        }
                     }
 
                     else -> throw Exception("not possible")
