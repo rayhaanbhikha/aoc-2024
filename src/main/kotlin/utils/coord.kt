@@ -3,7 +3,6 @@ package utils
 import kotlin.math.abs
 
 data class Coord(val row: Int, val col: Int) {
-
     override fun toString(): String {
         return "$row,$col"
     }
@@ -50,6 +49,8 @@ data class Coord(val row: Int, val col: Int) {
 fun Coord.inValidRange(rowRange: IntRange, colRange: IntRange): Boolean {
     return rowRange.contains(this.row) && colRange.contains(this.col)
 }
+
+
 
 enum class Directions(val coordVector: Coord, val isDiagonal: Boolean = false) {
     North(Coord(-1, 0)),

@@ -14,5 +14,7 @@ class Day14KtTest {
 
     @Test
     fun part2() {
+        val res = day14.part2()
+        assertEquals(7892, res)
     }
 }
