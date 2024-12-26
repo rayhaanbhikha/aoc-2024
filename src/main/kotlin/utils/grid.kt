@@ -12,6 +12,7 @@ class GridIterator<T>(private val grid: Grid<T>) : Iterator<Cell<T>> {
                 currentColIndex = 0
                 currentRowIndex = 0
             }
+
             currentColIndex == grid.maxColumn -> {
                 currentColIndex = 0
                 currentRowIndex++
@@ -54,12 +55,13 @@ data class Grid<T>(val cells: MutableList<MutableList<T>>) : Iterable<Cell<T>> {
 
     fun print() {
         println()
-        cells.forEach{
-            it.forEach{ value ->
+        cells.forEach {
+            it.forEach { value ->
                 print(value)
             }
             println()
         }
+        println()
     }
 
 }
@@ -99,7 +101,8 @@ fun <T> String.toGrid(mappingFunc: (rawValue: String, coord: Coord) -> T): Grid<
             val row = rawRow.trim().split("").toMutableList()
             row.removeFirst()
             row.removeLast()
-            row.mapIndexed { colIndex, rawValue -> mappingFunc(rawValue, Coord(row = rowIndex, col = colIndex)) }.toMutableList()
+            row.mapIndexed { colIndex, rawValue -> mappingFunc(rawValue, Coord(row = rowIndex, col = colIndex)) }
+                .toMutableList()
         }
         .toMutableList()
 
@@ -117,7 +120,7 @@ fun <T> List<List<T>>.maxRow(): Int {
 data class Cell<T>(var coord: Coord, var value: T) {
     fun cardinalNeighbours(grid: Grid<T>): List<Cell<T>> {
         return coord.cardinalNeighbours()
-                .filter { it.inValidRange(0..grid.maxRow, 0..grid.maxColumn) }
-                .map { Cell(coord = Coord(it.row, it.col), value = grid.cells[it.row][it.col]) }
+            .filter { it.inValidRange(0..grid.maxRow, 0..grid.maxColumn) }
+            .map { Cell(coord = Coord(it.row, it.col), value = grid.cells[it.row][it.col]) }
     }
 }

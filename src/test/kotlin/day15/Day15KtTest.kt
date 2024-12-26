@@ -11,5 +11,7 @@ import org.junit.jupiter.api.Assertions.*
  }
 
 @Test
- fun part2() {}
+ fun part2() {
+    assertEquals(0, day15.part2())
+ }
 }
